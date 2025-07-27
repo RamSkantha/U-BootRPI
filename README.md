@@ -19,6 +19,8 @@ It automates the boot process using `boot.scr` and shows how to configure the U-
 
 ## Project Structure
 
+👉 [View Project Structure](screenshots/project_structure.png)
+
 ├── boot.cmd
 ├── boot.scr
 ├── build-notes.txt
