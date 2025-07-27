@@ -1,0 +1,53 @@
+# 📄 U-Boot Build Notes – Raspberry Pi 4
+
+## 📌 Overview
+This project demonstrates how to build and customize U-Boot for the Raspberry Pi 4.  
+Key goals include boot script automation, custom commands, and environment variable storage via FAT/MMC.
+
+---
+
+## 🛠️ Build Environment
+
+- Host OS: Ubuntu 22.04 LTS (64-bit)
+- Toolchain: aarch64-linux-gnu-gcc (cross-compiler)
+- U-Boot version: v2024.01
+- Target: Raspberry Pi 4 Model B
+
+---
+
+## 🧱 Build Steps
+
+```bash
+# Step 1: Clone U-Boot
+git clone https://source.denx.de/u-boot/u-boot.git
+cd u-boot
+
+# Step 2: Select config
+make rpi_arm64_defconfig
+
+# Step 3: (Optional) Enable FAT/MMC environment settings
+# Modify configs/rpi_arm64_defconfig as needed
+
+# Step 4: Build U-Boot
+make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu-
+
+# Output files:
+#   - u-boot.bin
+#   - u-boot.img
+#   - u-boot.scr (from boot.cmd using mkimage)
+
+
+
+These were added/modified in rpi_arm64_defconfig:
+
+CONFIG_CMD_HELLO=y              # Custom U-Boot hello command
+CONFIG_BOOTDELAY=5              # Delay before autoboot
+
+# Environment stored in MMC (raw offset)
+CONFIG_ENV_IS_IN_MMC=y
+CONFIG_ENV_OFFSET=0x40000
+CONFIG_ENV_SIZE=0x2000
+CONFIG_SYS_MMC_ENV_DEV=0
+
+~                         
+
