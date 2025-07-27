@@ -73,11 +73,18 @@ It automates the boot process using `boot.scr` and shows how to configure the U-
 
 
 ## 📂 What’s Included
-- `boot.cmd` / `boot.scr` for script-based automated booting  
-- Custom U-Boot command: `hello` → prints "Hello, U-Boot World!"  
-- Environment variable configuration using `CONFIG_BOOTCOMMAND`  
-- Rebuild and flashing instructions  
-- `.config` file for reproducibility  
+
+- `boot.cmd` / `boot.scr` for automated script-based booting  
+- Custom U-Boot command: `hello` → prints `Hello, U-Boot World!`  
+- Environment variable management using:
+  - `CONFIG_ENV_IS_NOWHERE` (RAM only)
+  - `CONFIG_ENV_IS_IN_FAT` (FAT partition file-based env)
+  - `CONFIG_ENV_IS_IN_MMC` (raw MMC offset-based env)
+- Demonstrations of saving and verifying env variables from Linux (via `dd`)
+- Screenshots showing runtime confirmation of saved variables
+- `.config` file included for reproducible builds
+- Rebuild and flashing instructions
+- Git repository and commit hash info for traceability
 
 ## 🚀 How to Build
 ```bash
