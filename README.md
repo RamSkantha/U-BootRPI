@@ -1,178 +1,191 @@
-# U-Boot Custom Project – Raspberry Pi 4
+# 🚀 U-Boot Custom Project – Raspberry Pi 4 Model B (64-bit)
 
+This project demonstrates how to build and customize U-Boot for Raspberry Pi 4 Model B.
+
+## 📌 Project Info
+
+- **Project Duration:** July 2025  
+- **Author:** Ramkumar B  
+- **Description:** Customized U-Boot build for Raspberry Pi 4 Model B (64-bit)
 
 ## 📑 Table of Contents
-- [Project Overview](#project-overview)
+- [Overview](#overview)
 - [Project Structure](#project-structure)
-- [What’s Included](#whats-included)
-- [How to Build](#how-to-build)
+- [Features](#features)
+- [Build Instructions](#build-instructions)
 - [Custom Hello Command](#custom-hello-command)
-- [Boot from Script](#boot-from-own-script)
-- [Custom Environment Variables](#custom-hello-variable)
-- [Load Environment from FAT](#load-variable-from-fat-file)
-- [Load Environment from MMC](#load-variable-from-mmc)
+- [Boot from Script](#boot-from-script)
+- [Custom Environment Variable](#custom-environment-variable)
+- [Load Environment from FAT](#load-environment-from-fat)
+- [Load Environment from MMC](#load-environment-from-mmc)
 
+---
 
-## 📌 Project Overview
-This project demonstrates a customized build of U-Boot for Raspberry Pi 4.  
-It automates the boot process using `boot.scr` and shows how to configure the U-Boot environment.
+## 📌 Overview
 
-## Project Structure
+This project demonstrates a customized U-Boot build for Raspberry Pi 4 Model B (64-bit).  
+It includes:
 
-👉 [View Project Structure](screenshots/project_structure.png)
+- Boot automation using `boot.scr`
+- Custom U-Boot command (`hello`)
+- Environment variable handling via RAM, FAT, and MMC
+- Verification through both runtime and Linux-side inspection
 
+---
+
+## 📂 Project Structure
+
+📸 ![Click here to view full structure](screenshots/project_structure.png)*
+
+```
 ├── boot.cmd
 ├── boot.scr
 ├── build-notes.txt
 ├── .config
 ├── custom_command_notes.md
-├── .git
-│   ├── branches
-│   ├── config
-│   ├── description
-│   ├── HEAD
-│   ├── hooks
-│   │   ├── applypatch-msg.sample
-│   │   ├── commit-msg.sample
-│   │   ├── fsmonitor-watchman.sample
-│   │   ├── post-update.sample
-│   │   ├── pre-applypatch.sample
-│   │   ├── pre-commit.sample
-│   │   ├── pre-merge-commit.sample
-│   │   ├── prepare-commit-msg.sample
-│   │   ├── pre-push.sample
-│   │   ├── pre-rebase.sample
-│   │   ├── pre-receive.sample
-│   │   ├── push-to-checkout.sample
-│   │   ├── sendemail-validate.sample
-│   │   └── update.sample
-│   ├── info
-│   │   └── exclude
-│   ├── objects
-│   │   ├── info
-│   │   └── pack
-│   └── refs
-│       ├── heads
-│       └── tags
-├── include
-│   └── env_default.h
-├── LICENSE
-├── README.md
-├── screenshots
-│   ├── Boot_from_script.png
-│   ├── env_default.h.png
-│   ├── hello_cmd_output.png
-│   ├── hello_variable_output.png
-│   ├── loadFromFatFile.png
-│   ├── message_from_MMC.png
-│   ├── MMC_Confirmaton_From_linux.png
-│   ├── saveenv_into_MMC.png
-│   └── saveenv.png
+├── include/env_default.h
+├── screenshots/
 ├── u-boot.bin
-└── U-Boot_Script_notes.md
+├── U-Boot_Script_notes.md
+└── README.md
+```
 
+---
 
-## 📂 What’s Included
+## ✅ Features
 
-- `boot.cmd` / `boot.scr` for automated script-based booting  
-- Custom U-Boot command: `hello` → prints `Hello, U-Boot World!`  
-- Environment variable management using:
-  - `CONFIG_ENV_IS_NOWHERE` (RAM only)
-  - `CONFIG_ENV_IS_IN_FAT` (FAT partition file-based env)
-  - `CONFIG_ENV_IS_IN_MMC` (raw MMC offset-based env)
-- Demonstrations of saving and verifying env variables from Linux (via `dd`)
-- Screenshots showing runtime confirmation of saved variables
-- `.config` file included for reproducible builds
-- Rebuild and flashing instructions
-- Git repository and commit hash info for traceability
+- Script-based booting with `boot.cmd` and `boot.scr`
+- Custom command `hello` added to U-Boot CLI
+- Environment variable management:
+  - Volatile (RAM-only)
+  - Persistent via FAT file
+  - Persistent via raw MMC offset
+- Linux-side validation with `dd` and `strings`
 
-## 🚀 How to Build
+---
+
+## ⚙️ Build Instructions
+
 ```bash
 make rpi_4_defconfig
 make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu-
+```
 
+---
 
-### Custom Hello Command
+## 🧩 Custom Hello Command
 
-For detailed steps and output of the custom U-Boot `hello` command, see:  
-👉 [View Hello Command Integration](custom_command_notes.md)
+- Integrated using `cmd_hello.c`
+- Registered with `U_BOOT_CMD(...)`
+- Enable using:
 
+```c
+CONFIG_CMD_HELLO=y
+```
 
-### Boot from Own Script
+📄 See: `custom_command_notes.md`  
+📸 ![Hello Output](screenshots/hello_cmd_output.png)
 
-For detailed steps and output of the custom U-Boot `hello` command, see:  
-👉 [View Boot Script Notes](u_boot_Script_notes.md)
+---
 
+## 📜 Boot from Script
 
-### Custom Hello Variable
+Create a `boot.cmd` like:
 
-	👉 step 1 : Add CONFIG_ENV_IS_NOWHERE=y in u-boot/configs/rpi_arm64_defconfig
-	👉 step 2 : Add your custom variable in u-boot/include/env_default.h
+```bash
+setenv bootargs 'console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait rw'
+load mmc 0:1 ${kernel_addr_r} Image
+load mmc 0:1 ${fdt_addr_r} bcm2711-rpi-4-b.dtb
+booti ${kernel_addr_r} - ${fdt_addr_r}
+```
 
-![env_default](screenshots/env_default.h.png)
+Convert to `boot.scr`:
 
-![hello_variable](screenshots/hello_variable_output.png)
+```bash
+mkimage -C none -A arm64 -T script -d boot.cmd boot.scr
+```
 
+📄 See: `U-Boot_Script_notes.md`  
+📸 ![Boot Script Screenshot](screenshots/Boot_from_script.png)
 
-	As you set CONFIG_ENV_IS_NOWHERE=y you cannot save any variable
+---
 
-![saveenv](screenshots/saveenv.png) 
+## 🧪 Custom Environment Variable
 
+### ➤ Setup for RAM-only environment:
 
+```c
+CONFIG_ENV_IS_NOWHERE=y
+```
 
-### Load variable from FAT file
+Add to `include/env_default.h`:
 
+```c
+#define CONFIG_EXTRA_ENV_SETTINGS \
+    "message=Hello from nowhere env\0"
+```
 
-	👉 Step 1 : Add # CONFIG_ENV_IS_NOWHERE is not set and CONFIG_ENV_IS_IN_FAT=y in u-boot/configs/rpi_arm64_defconfig
+📸 ![env_default.h](screenshots/env_default.h.png)  
+📸 ![hello_variable_output](screenshots/hello_variable_output.png)  
 
+❗ `saveenv` is **not supported** in RAM-only mode:  
+📸 ![saveenv failure](screenshots/saveenv.png)
 
-	Here you can clearly see your custom variable(message) is not found and when you type saveenv it is saving into FAT file which confirm we loaded variable from FAT file not default environment
+---
 
-![loadFromFatFile](screenshots/loadFromFatFile.h)
+## 💾 Load Environment from FAT
 
-	📌 Note: 
-	When you set CONFIG_ENV_IS_IN_FAT=y environment varibale will be loaded from /boot/boot.env file.If it doesn't exit then it will fallback into default environment.
+### ➤ Setup:
 
-### Load variable from MMC
+```c
+# CONFIG_ENV_IS_NOWHERE is not set
+CONFIG_ENV_IS_IN_FAT=y
+```
 
-👉 Step 1 : Set the following
+U-Boot loads environment from `/boot/boot.env`  
+If the file doesn’t exist, defaults are used.
 
-        # CONFIG_ENV_IS_IN_FAT is not set
-        # CONFIG_ENV_IS_NOWHERE is not set
-	CONFIG_ENV_IS_IN_MMC=y
-	CONFIG_ENV_OFFSET=0x40000
-	CONFIG_ENV_SIZE=0x2000
-	CONFIG_SYS_MMC_ENV_DEV=0
+📸 ![Load from FAT](screenshots/loadFromFatFile.png)
 
-	Here you can clearly see your custom variable(message) is not found and when you saveenv message it is showing saving into MMC so after reset you can get the message so we can confirm variables are loading from MMC.
+📝 After editing environment:
 
-	![saveenv_into_MMC](screenshots/saveenv_into_MMC.png)
-![message_from_MMC](screenshots/message_from_MMC.png)
+```bash
+setenv message "Saved in FAT"
+saveenv
+```
 
-	✅ Confirming Environment Storage
-	
-	You can confirm that U-Boot successfully saved the environment to MMC using the following steps:
+---
 
-👉 Step 1. Dump the environment block using dd if=/dev/mmcblk0 of=env_backup.bin bs=1 skip=$((0x40000)) count=$((0x2000))
+## 📦 Load Environment from MMC
 
-	skip=0x40000 – skips 256 KB to reach the environment location.
-        count=0x2000 – reads 8 KB (the configured environment size)
+### ➤ Setup:
 
-👉 Step 2. Confirm the file is created
-	ls -lh env_backup.bin
+```c
+CONFIG_ENV_IS_IN_MMC=y
+CONFIG_ENV_OFFSET=0x40000     // 256 KB
+CONFIG_ENV_SIZE=0x2000        // 8 KB
+CONFIG_SYS_MMC_ENV_DEV=0      // mmc 0
+```
 
-👉 Step 3. Search for saved variables
-	strings env_backup.bin | grep message
+📸 ![Saveenv to MMC](screenshots/saveenv_into_MMC.png)  
+📸 ![Message from MMC](screenshots/message_from_MMC.png)
 
-![MMC_Confirmaton_From_linux](screenshots/MMC_Confirmaton_From_linux.png)
+### ✅ Confirm from Linux
 
-	📌 Note:
-	When CONFIG_ENV_IS_IN_MMC=y, U-Boot stores the environment directly into a raw offset on the eMMC/SD card (not as a file).
-	The environment is written to the physical device at the address defined by CONFIG_ENV_OFFSET.
-	After running saveenv, the variable is written to this raw space and is preserved across reboots.
+```bash
+dd if=/dev/mmcblk0 of=env_backup.bin bs=1 skip=$((0x40000)) count=$((0x2000))
+strings env_backup.bin | grep message
+```
 
+📸 ![MMC Confirmation](screenshots/MMC_Confirmaton_From_linux.png)
 
+📌 When `CONFIG_ENV_IS_IN_MMC` is enabled, U-Boot stores the environment directly into raw space (not as a file) on the SD card at the offset `0x40000`.
 
+---
 
+## 🧾 References
 
+- [U-Boot GitLab Repository](https://source.denx.de/u-boot/u-boot)
+- [Raspberry Pi U-Boot Docs](https://u-boot.readthedocs.io/en/latest/board/raspberrypi/)
 
+---
