@@ -9,15 +9,15 @@ This project demonstrates how to build and customize U-Boot for Raspberry Pi 4 M
 - **Description:** Customized U-Boot build for Raspberry Pi 4 Model B (64-bit)
 
 ## 📑 Table of Contents
-- [Overview](#overview)
-- [Project Structure](#project-structure)
-- [Features](#features)
-- [Build Instructions](#build-instructions)
-- [Custom Hello Command](#custom-hello-command)
-- [Boot from Script](#boot-from-script)
-- [Custom Environment Variable](#custom-environment-variable)
-- [Load Environment from FAT](#load-environment-from-fat)
-- [Load Environment from MMC](#load-environment-from-mmc)
+- [Overview](#-overview)
+- [Project Structure](#-project-structure)
+- [Features](#-features)
+- [Build Instructions](#-build-instructions)
+- [Custom Hello Command](#-custom-hello-command)
+- [Boot from Script](#-boot-from-script)
+- [Custom Environment Variable](#-custom-environment-variable)
+- [Load Environment from FAT](#-load-environment-from-fat)
+- [Load Environment from MMC](#-load-environment-from-mmc)
 
 ---
 
