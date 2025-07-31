@@ -64,7 +64,7 @@ It includes:
 
 ---
 
-## ⚙️ Build Instructions
+## ⚙️  Build Instructions
 
 ```bash
 make rpi_4_defconfig
